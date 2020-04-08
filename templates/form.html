@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- If IE use the latest rendering engine -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Set the page to the width of the device and set the zoon level -->
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <title>{{hostname}} INDI Web Manager</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/schoolhouse.css">
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-select.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/indi.js"></script>
+
+</head>
+<body>
+    <script type="text/javascript">
+    //<!CDATA[
+
+        var bodyBgs = [];
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        bodyBgs[0] = "../static/mobile/1.jpg";
+        bodyBgs[1] = "../static/mobile/2.jpg";
+        bodyBgs[2] = "../static/mobile/3.jpg";
+        bodyBgs[3] = "../static/mobile/4.jpg";
+        bodyBgs[4] = "../static/mobile/5.jpg";}
+    else{bodyBgs[0] = "../static/pc/1.jpg";
+        bodyBgs[1] = "../static/pc/2.jpg";
+        bodyBgs[2] = "../static/pc/3.jpg";
+        bodyBgs[3] = "../static/pc/4.jpg";
+        bodyBgs[4] = "../static/pc/5.jpg";}
+
+        var randomBgIndex = Math.round( Math.random() * 4 );
+
+    //输出随机的背景图
+        document.write('<style>body{background:url(' + bodyBgs[randomBgIndex] + ');' +
+            'background-size: 100%;' + 'background-attachment:fixed'+
+            'background-position: center;'  +
+            '}</style>');
+    </script>
+<br>
+    <h1 style="margin: 0 0 20px 0; color: #eea236">{{hostname}} INDI Web Manager</h1>
+  <div class="class2">
+
+    <!-- <form> !-->
+
+      <div id="firstrow" class="row">
+       <div class="col-sm-6">
+        <div class="form-group">
+         <label>Equipment Profile:</label>
+         <div class="input-group">
+             <label for="profiles"></label><select onClick="loadCurrentProfileDrivers()" id="profiles" class="form-control">
+{% for profile in profiles %}
+    {% if saved_profile == profile['name'] %}
+        <option selected>{{profile['name']}}</option>
+    {% else %}
+        <option>{{profile['name']}}</option>
+    {% endif %}
+{% endfor %}
+           </select>
+           <span class="input-group-btn">
+             <button class="btn btn-default" onCLick="saveProfile()" data-toggle="tooltip" title="Save Profile"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button>
+             <button class="btn btn-default" onClick="removeProfile()" data-toggle="tooltip" title="Delete Profile"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
+           </span>
+        </div>
+        <div>
+            <label class="checkbox-inline"><input id="profile_auto_start" onChange="saveProfileInfo()" type="checkbox" value="Autostart">Auto Start</label>
+            <label class="checkbox-inline"><input id="profile_auto_connect" onChange="saveProfileInfo()" type="checkbox" value="Autoconnect">Auto Connect</label>
+        </div>
+       </div>
+     </div>
+
+     <div class="col-sm-6">
+       <div class="form-group">
+         <label>New Profile:</label>
+         <div class="input-group">
+             <label for="new_profile_name"></label><input class="form-control" id="new_profile_name" type="text" placeholder="New Profile">
+          <span class="input-group-btn">
+           <button id="add_profile" onClick="addNewProfile()" class="btn btn-default" data-toggle="tooltip" title="Add Profile"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+          </span>
+         </div>
+     </div>
+   </div>
+   </div>
+
+   <div class="row">
+     <div class="col-sm-6">
+     <div class="form-group">
+     <label for="drivers" class="control-label">Drivers:</label>
+       <select id="drivers_list" class="form-control selectpicker show-tick" data-live-search="true" title="Select drivers..." data-selected-text-format="count > 5" multiple>
+                {% for family,driver_list in drivers.items() %}
+                       <optgroup label="{{family}}">
+                      {% for driver in driver_list %}
+                        <option value="{{driver}}" data-tokens="{{driver}}">{{driver}}</option>
+                      {% endfor %}
+                       </optgroup>
+                {% endfor %}
+       </select>
+
+       </div>
+          <button id="server_command" onClick="toggleServer()" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Start</button>
+     </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+            <label for="serverPort" class="control-label">Port:</label>
+                <label for="profile_port"></label><input id="profile_port" onChange="saveProfileInfo()" class="form-control" type="text" value="7624">
+            </div>
+        </div>
+   </div>
+
+<br>
+
+     <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>Server Status</label>
+                <div id="server_notify" class="well"></div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="col-sm-6">
+                <label for="rebootShutdown" class="control-label">Poweroff Reboot:</label>
+                <br>
+                <button id="system_reboot" onClick="rebootSystem()" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Reboot remote System</button>
+		<br>                
+		<button id="system_poweroff" onClick="poweroffSystem()" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> PowerOff remote System</button>
+            </div>
+        </div>
+
+    </div>
+  </div>
+	<p> @2020 Designed by lewcherwyn</p>
+	<p> Powered by indiweb manager</p>
+</body>
+</html>
