@@ -6,6 +6,11 @@ How to use it?
 --Just run the main.py on the raspberry pi.
 
 
+The  default port is？
+
+--/0.0.0.0:8624
+
+
 Else things:
 
 --I removed the way to log in remotely with remote account.
