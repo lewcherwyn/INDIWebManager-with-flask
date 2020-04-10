@@ -1,5 +1,5 @@
 # Indiweb-with-flask
-Changed the indiweb's original bottle framework and replaced it with flask.
+Changed the INDI Web Manager's original bottle framework and replaced it with flask.
 
 How to use it?
 
@@ -8,7 +8,7 @@ How to use it?
 
 The  default port is？
 
---/0.0.0.0:8624
+--/0.0.0.0:8624。
 
 
 Else things:
